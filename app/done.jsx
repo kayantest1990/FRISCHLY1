@@ -50,7 +50,7 @@ export default function CheckoutSuccessPage() {
           // Get the last order's payment link
           if (fetchedOrders.length > 0) {
             const lastOrder = fetchedOrders[0]; 
-            setPaymentUrl(lastOrder.paymentLinkId);  
+            setPaymentUrl(lastOrder.paymentUrl);  
           }
         } else {
           console.error('Failed to fetch orders');
@@ -70,6 +70,10 @@ export default function CheckoutSuccessPage() {
   }, []);
 
   if (loading) return <Text>Loading...</Text>;
+
+
+  console.log("paymentUrl ", paymentUrl);
+  
 
   return (
     <ScrollView

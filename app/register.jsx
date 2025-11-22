@@ -210,58 +210,59 @@ export default function Register() {
 	// -------------------------
 	// Register handler
 	// -------------------------
-	const handleRegister = async () => {
-		console.log("Register function called"); // Debug: function trigger
+const handleRegister = async () => {
+	console.log("Register function called");
 
-		if (!name || !phone || !password || !zipCode) {
-			console.log("Validation failed: Missing required fields"); // Debug
-			Alert.alert("Error", "Name, phone, zip code and password are required");
-			return;
-		}
+	if (!name || !phone || !password || !zipCode) {
+		Alert.alert("Error", "Name, phone, zip code and password are required");
+		return;
+	}
 
-		const sanitizedPhone = phone.replace(/\D/g, "");
-		console.log("Sanitized phone:", sanitizedPhone); // Debug
+	const sanitizedPhone = phone.replace(/\D/g, "");
 
-		const userData = {
-			name,
-			phoneNumber: sanitizedPhone,
-			email: email.toLowerCase(),
-			password,
-			address: { street, city, state: stateVal, zipCode, country },
-		};
-		console.log("User data payload:", userData); // Debug
+	const userData = {
+		name,
+		phoneNumber: sanitizedPhone,
+		email: email.toLowerCase(),
+		password,
+		address: { street, city, state: stateVal, zipCode, country },
+	};
 
-		try {
-			console.log("Sending registration request...");
-			const res = await axios.post(
-				"https://frischlyshop-server.onrender.com/api/auth/register",
-				userData,
-				{ headers: { "Content-Type": "application/json" } }
-			);
+	try {
+		const res = await axios.post(
+			"https://frischlyshop-server.onrender.com/api/auth/register",
+			userData,
+			{ headers: { "Content-Type": "application/json" } }
+		);
 
-			console.log("Raw registration response:", res); // Debug
-			if (res.data) {
-				console.log("Registration response data:", res.data); // Debug
-
-				await AsyncStorage.setItem("userData", JSON.stringify(res.data.data));
-				console.log("User data saved to AsyncStorage"); // Debug
-
-				Alert.alert("Success", "Registration successful!");
-				router.replace("/start");
-			}
-		} catch (error) {
-			console.log("Registration caught error:", error); // Full error object
-			console.log("Error response data:", error.response?.data); // Debug
-			console.log("Error message:", error.message); // Debug
+		if (res.data) {
+			await AsyncStorage.setItem("userData", JSON.stringify(res.data.data));
 
 			Alert.alert(
-				"Error",
-				error.response?.data?.message?.includes("Validation failed")
-					? "Error: Check email if correct or password is strong (password should contain uppercase, lowercase, numbers, and special letters)"
-					: error.response?.data?.message || "Registration failed"
+				"Please confirm your email",
+				"We have sent a confirmation email. You must verify your email before logging in.",
+				[
+					{
+						text: "OK",
+						onPress: () => {
+							// redirect to login page
+							router.replace("/start");
+						},
+					},
+				]
 			);
 		}
-	};
+	} catch (error) {
+		console.log("Registration caught error:", error);
+		Alert.alert(
+			"Error",
+			error.response?.data?.message?.includes("Validation failed")
+				? "Check email if correct or password is strong (uppercase, lowercase, numbers and special characters required)"
+				: error.response?.data?.message || "Registration failed"
+		);
+	}
+};
+
 
 
 
