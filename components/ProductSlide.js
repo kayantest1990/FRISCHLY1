@@ -107,12 +107,12 @@ const increaseQty = (product) => {
 const basePrice = product.price || 0;
 const discountPercent = product.discount || 0;
 
-// const finalPrice =
-// 	discountPercent > 0
-// 		? basePrice - (basePrice * discountPercent) / 100
-// 		: basePrice;
+const finalPrice =
+	discountPercent > 0
+		? basePrice - (basePrice * discountPercent) / 100
+		: basePrice;
 
-const finalPrice = basePrice;
+// const finalPrice = basePrice;
 
 
 		const isQtyVisible = showQty[product._id] || false;
@@ -147,10 +147,12 @@ const finalPrice = basePrice;
 				<Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
 					{product.name}
 				</Text>
+ 
+<View style={styles.priceRow}>
+  <Text style={styles.basePrice}>€{basePrice.toFixed(2)}</Text>
+  <Text style={styles.finalPrice}>€{finalPrice.toFixed(2)}</Text>
+</View>
 
-				<View style={styles.priceRow}>
-					<Text style={styles.newPrice}>€{finalPrice.toFixed(2)}</Text>
-				</View>
 
 {/* Quantity Selector or Add to Cart (Hidden if Out of Stock) */}
 {product.stock > 0 && (
@@ -306,4 +308,22 @@ const styles = StyleSheet.create({
 		fontWeight: "500",
 		color: "#000",
 	},
+	priceRow: {
+  flexDirection: "row",
+  alignItems: "center",
+  gap: 10, // or marginRight on basePrice
+},
+
+basePrice: {
+  color: "#b3b3b3ff",
+  textDecorationLine: "line-through",
+  fontSize: 13,
+},
+
+finalPrice: {
+  color: "#000",
+  fontWeight: "bold",
+  fontSize: 13,
+},
+
 });

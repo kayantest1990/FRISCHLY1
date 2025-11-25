@@ -28,7 +28,7 @@ const CheckoutPage = ({ items, customer }) => {
 const handlePlaceOrder = async () => {
   console.log("🛒 handlePlaceOrder triggered");
 
-  if (!items || !customer) {
+  if (!items || !customer) { 
     console.log("⚠️ Missing items or customer:", { items, customer });
     return;
   }
@@ -91,7 +91,11 @@ const handlePlaceOrder = async () => {
     }
 
     console.log("✅ Order successfully created:", data);
-    router.push(`/done`);
+router.push({
+  pathname: "/done",
+  params: { yourData: JSON.stringify(data) }
+});
+
 
   } catch (err) {
     console.error("❌ Exception occurred:", err);

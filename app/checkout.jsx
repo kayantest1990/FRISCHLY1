@@ -117,7 +117,9 @@ const CheckoutScreen = () => {
 	const { cart, removeFromCart, subtotal, calculatePriceDetails } =
 		useCart();
 	const [deliveryFee, setDeliveryFee] = useState(0);
-	const [total, setTotal] = useState((subtotal + deliveryFee).toFixed(2));
+	const [total, setTotal] = useState("0.00");
+
+
 	const [zones, setZones] = useState([]);
 
 	const [country, setCountry] = useState("");
@@ -172,67 +174,75 @@ const CheckoutScreen = () => {
 				const userData = await AsyncStorage.getItem("userData");
 				const guest = await AsyncStorage.getItem("guest");
 
-				if (!userData) {
+				// ✅ If guest → go to start
+				if (guest !== "false") {
+					console.log("g = ", guest)
+					console.log("🟡 Guest detected → redirecting to /start");
 					router.replace("/start");
 					return;
 				}
 
-				if (userData) {
-					const parsedUser = JSON.parse(userData);
-					const token = parsedUser?.token;
-
-					if (!token) {
-						console.log("⚠️ No token, treating as guest");
-						setState((prev) => ({ ...prev, loading: false }));
-						return;
-					}
-
-					const res = await fetch(
-						"https://frischlyshop-server.onrender.com/api/auth/me",
-						{
-							headers: {
-								Authorization: `Bearer ${token}`,
-								"Content-Type": "application/json",
-							},
-						}
-					);
-
-					if (res.ok) {
-						const data = await res.json();
-						const user = data.data.user;
-
-						setState((prev) => ({
-							...prev,
-							user,
-							inputs: {
-								name: user.name || "",
-								email: user.email || "",
-								phone: user.phoneNumber || "",
-								country: user.address?.country || "",
-								state: user.address?.state || "",
-								city: user.address?.city || "",
-								zipCode: user.address?.zipCode || "",
-								street: user.address?.street || "",
-							},
-							country: user.address?.country || "",
-							loading: false,
-						}));
-					} else {
-						console.log("⚠️ Failed to fetch user, treating as guest");
-						setState((prev) => ({ ...prev, loading: false }));
-					}
-				} else if (guest) {
-					console.log("Guest mode enabled");
-					setState((prev) => ({ ...prev, loading: false }));
+				// ❌ No user and not guest → go to start
+				if (!userData) {
+					console.log("🔴 No user found → redirecting to /start");
+					router.replace("/start");
+					return;
 				}
+
+				// 🟢 Logged user flow
+				const parsedUser = JSON.parse(userData);
+				const token = parsedUser?.token;
+
+				if (!token) {
+					console.log("⚠️ Missing token → redirecting to /start");
+					router.replace("/start");
+					return;
+				}
+
+				const res = await fetch(
+					"https://frischlyshop-server.onrender.com/api/auth/me",
+					{
+						headers: {
+							Authorization: `Bearer ${token}`,
+							"Content-Type": "application/json",
+						},
+					}
+				);
+
+				if (!res.ok) {
+					console.log("⚠️ Failed /me request → redirecting to /start");
+					router.replace("/start");
+					return;
+				}
+
+				const data = await res.json();
+				const user = data.data.user;
+
+				setState((prev) => ({
+					...prev,
+					user,
+					inputs: {
+						name: user.name || "",
+						email: user.email || "",
+						phone: user.phoneNumber || "",
+						country: user.address?.country || "",
+						state: user.address?.state || "",
+						city: user.address?.city || "",
+						zipCode: user.address?.zipCode || "",
+						street: user.address?.street || "",
+					},
+					country: user.address?.country || "",
+					loading: false,
+				}));
 			} catch (err) {
 				console.error("🔥 Error checking login:", err);
-				setState((prev) => ({ ...prev, loading: false }));
+				router.replace("/start");
 			}
 		};
 
 		checkLogin();
 	}, [router]);
+
 
 
 
@@ -266,10 +276,28 @@ const CheckoutScreen = () => {
 		fetchPrice();
 	}, [state.inputs.zipCode]);
 
-	// Update total
+const calculateTotal = () => {
+  const s = Number(subtotal);
+  const d = Number(deliveryFee);
+
+  // Calculate fee on (subtotal + delivery)
+  const processFee = (s + d) * 0.029 + 0.30;
+
+  // Round to 2 decimals
+  const fees = Math.round(processFee * 100) / 100;
+
+  // Final total
+  const totalAmount = s + d + fees;
+
+  return totalAmount.toFixed(2);
+};
+
+
+
 	useEffect(() => {
-		setTotal((subtotal + deliveryFee).toFixed(2));
+		setTotal(calculateTotal());
 	}, [subtotal, deliveryFee]);
+
 
 	const handleInput = (name, value) => {
 		setState((prev) => ({
@@ -456,6 +484,10 @@ const CheckoutScreen = () => {
 				<View style={styles.summaryRow}>
 					<Text>{t("delivery")}</Text>
 					<Text>€{deliveryFee.toFixed(2)}</Text>
+				</View>
+				<View style={styles.summaryRow}>
+					<Text>{t("Process fees")}</Text>
+					<Text> 2.9 % + €0.30</Text>
 				</View>
 				<View style={styles.summaryRow}>
 					<Text style={{ fontWeight: "bold" }}>{t("total")}</Text>

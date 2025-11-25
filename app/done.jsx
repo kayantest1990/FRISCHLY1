@@ -2,7 +2,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { Feather } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   Linking,
@@ -14,14 +14,21 @@ import {
 } from "react-native";
 import Svg, { G, Path } from "react-native-svg";
 
+
+
+
 export default function CheckoutSuccessPage() {
-	const { t } = useTranslation();
+  const { t } = useTranslation();
 
   const { clearCart } = useCart();
-  const router = useRouter();
-  const [orders, setOrders] = useState([]);
-  const [paymentUrl, setPaymentUrl] = useState(null);
+  const router = useRouter(); 
   const [loading, setLoading] = useState(true);
+
+  const params = useLocalSearchParams();
+const parsed = JSON.parse(params.yourData); 
+const paymentUrl = parsed.paymentUrl;
+
+console.log("Payment URL:", paymentUrl);
 
   useEffect(() => {
     const checkLoginAndFetchOrders = async () => {
@@ -46,13 +53,11 @@ export default function CheckoutSuccessPage() {
         if (ordersRes.ok) {
           const ordersData = await ordersRes.json();
           const fetchedOrders = ordersData.data || [];
-          setOrders(fetchedOrders); 
-          // Get the last order's payment link
-          if (fetchedOrders.length > 0) {
-            const lastOrder = fetchedOrders[0]; 
-            setPaymentUrl(lastOrder.paymentUrl);  
-          }
-        } else {
+ 
+ 
+ 
+        }
+        else {
           console.error('Failed to fetch orders');
         }
       } catch (err) {
@@ -73,7 +78,7 @@ export default function CheckoutSuccessPage() {
 
 
   console.log("paymentUrl ", paymentUrl);
-  
+
 
   return (
     <ScrollView
@@ -113,7 +118,7 @@ export default function CheckoutSuccessPage() {
         {paymentUrl && (
           <TouchableOpacity
             style={styles.button}
-            onPress={() => Linking.openURL(`https://onelink.pay1.de/p/${paymentUrl}`)}
+            onPress={() => Linking.openURL(`${paymentUrl}`)}
           >
             <Text style={styles.buttonText}>{t("proceedToPayment")}</Text>
           </TouchableOpacity>

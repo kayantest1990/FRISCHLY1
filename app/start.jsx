@@ -14,24 +14,31 @@ import {
 	Image,
 	KeyboardAvoidingView,
 	ScrollView,
+	StyleSheet,
 	Text,
 	TextInput,
 	TouchableOpacity,
 	View
 } from "react-native";
 
-export default function Start() {
-	const { t } = useTranslation();
+export default function Start() { 
+
+		const { t, language, switchLanguage } = useTranslation(); 
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
 	const router = useRouter(); 
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 	const [loading, setLoading] = useState(false);
+		const languages = [
+		{ code: "en", name: "English", flag: "https://flagcdn.com/w40/gb.png" },
+		{ code: "de", name: "Deutsch", flag: "https://flagcdn.com/w40/de.png" },
+	];
 
 	const screenHeight = Dimensions.get("window").height;
 
-
+	const selectedLang = languages.find((l) => l.code === language);
 
 	const handleLogin = async () => {
 		if (!email || !password) {
@@ -55,6 +62,7 @@ export default function Start() {
 				if (userData.user.emailConfirmed === true) {
 					// ✅ Save user data and redirect
 					await AsyncStorage.setItem("userData", JSON.stringify(userData));
+					await AsyncStorage.setItem("guest", "false");
 					router.replace("/(tabs)");
 				} else {
 					Alert.alert(
@@ -122,6 +130,8 @@ export default function Start() {
 					/>
 				</View>
 
+
+
 				{/* Bottom 60% content */}
 				<View
 					style={{
@@ -129,9 +139,38 @@ export default function Start() {
 						justifyContent: "center",
 						alignItems: "center",
 						paddingHorizontal: 24,
-						backgroundColor: "#ffffff",
+						backgroundColor: "#ffffff", 
 					}}
 				>
+
+					
+								<View style={styles.dropdownContainer}>
+									<TouchableOpacity
+										style={styles.dropdownButton}
+										onPress={() => setDropdownOpen(!dropdownOpen)}
+									>
+										<Image source={{ uri: selectedLang.flag }} style={styles.flag} />
+										<Text style={styles.arrow}>{dropdownOpen ? "▲" : "▼"}</Text>
+									</TouchableOpacity>
+				
+									{dropdownOpen && (
+										<View style={styles.dropdownList}>
+											{languages.map((lang) => (
+												<TouchableOpacity
+													key={lang.code}
+													style={styles.dropdownItem}
+													onPress={() => {
+														switchLanguage(lang.code);
+														setDropdownOpen(false);
+													}}
+												>
+													<Image source={{ uri: lang.flag }} style={styles.flag} />
+													<Text style={styles.dropdownText}>{lang.name}</Text>
+												</TouchableOpacity>
+											))}
+										</View>
+									)}
+								</View>
 					{/* Email input */}
 					<View
 						style={{
@@ -262,3 +301,60 @@ export default function Start() {
 		</KeyboardAvoidingView>
 	);
 }
+
+const styles = StyleSheet.create({
+ 
+ dropdownContainer: {
+	width: "100%",
+	alignItems: "center", 
+	marginBottom: 40,
+	zIndex: 9999, // 🔥 FIX: ensures it appears above everything
+  },
+
+  dropdownButton: {
+	flexDirection: "row",
+	alignItems: "center",
+	paddingHorizontal: 8, 
+  },
+
+  dropdownList: {
+	position: "absolute",
+	top: 40,
+	backgroundColor: "#fff",
+	borderWidth: 1,
+	borderColor: "#ccc",
+	borderRadius: 10,
+	shadowColor: "#000",
+	shadowOpacity: 0.2,
+	shadowRadius: 6,
+	elevation: 10,
+	width: 150,
+	zIndex: 99999,
+  },
+
+  dropdownItem: {
+	flexDirection: "row",
+	alignItems: "center",
+	paddingVertical: 10,
+	paddingHorizontal: 12,
+  },
+
+  flag: {
+	width: 24,
+	height: 16,
+	marginRight: 8,
+	borderRadius: 3,
+  },
+
+  dropdownText: {
+	color: "#000",
+	fontSize: 14,
+  },
+
+  arrow: {
+	marginLeft: 5,
+	fontSize: 14,
+	color: "#333",
+  },
+
+});
