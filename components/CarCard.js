@@ -1,6 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
 import { useRouter } from "expo-router";
-import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 /**
@@ -120,7 +119,7 @@ const CarCard = ({ temp, index }) => {
 				{/* Out of Stock Overlay */}
 				{isOutOfStock && (
 					<View style={styles.outOfStockOverlay}>
-						<Text style={styles.outOfStockText}>Out of Stock</Text>
+						<Text style={styles.outOfStockText}>{t("out")}</Text>
 					</View>
 				)}
 			</View>

@@ -77,6 +77,7 @@ export const translations = {
     fPrice: "Final Price",
     aBag: "Add to Bag",
     forget: "Forgot Password?",
+    out: "Out of Stock",
 
   },
 
@@ -157,5 +158,6 @@ export const translations = {
     fPrice: "Endpreis",
     aBag: "In den Warenkorb",
     forget: "Passwort vergessen?",
+    out: "Nicht vorrätig",
   },
 };

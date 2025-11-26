@@ -16,7 +16,7 @@ const OutOfStockComponent = ({ itemName }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.outOfStockText}>Out of Stock</Text>
+      <Text style={styles.outOfStockText}>{t("out")}</Text>
       {/* <TouchableOpacity style={styles.button} onPress={handlePress}>
         <Text style={styles.buttonText}>PREORDER</Text>
       </TouchableOpacity> */}

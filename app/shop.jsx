@@ -263,7 +263,7 @@ const renderProduct = ({ item }) => {
                     />
 {item.stock === 0 && (
     <View style={styles.outOfStockOverlay}>
-        <Text style={styles.outOfStockText}>OUT OF STOCK</Text>
+        <Text style={styles.outOfStockText}>{t("out")}</Text>
     </View>
 )}
 
