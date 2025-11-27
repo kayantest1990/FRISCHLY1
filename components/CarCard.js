@@ -1,3 +1,4 @@
+import { useTranslation } from "@/contexts/TranslationContext";
 import { useNavigation } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -36,6 +37,7 @@ const CarCard = ({ temp, index }) => {
 	const navigation = useNavigation();
 	const { _id, title, discount, img, stock, type, color } = temp;
 	const router = useRouter();
+	const { t } = useTranslation();
 
 	// Rotate 3 background colors
 	const bgColors = ["#FFC300", "#000000", "#FFFFFF"]; // yellow, black, white

@@ -1,6 +1,7 @@
 "use client";
 import { useBooleanValue } from "@/contexts/CartBoolContext";
 import { useCart } from "@/contexts/CartContext";
+import { useTranslation } from "@/contexts/TranslationContext";
 import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
@@ -21,11 +22,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const { width } = Dimensions.get("window");
 const ITEM_WIDTH = width / 3 - 13; // three items per row with spacing
 
-export default function ShopPage() { 
+export default function ShopPage() {
 	const router = useRouter();
 	const { category } = useLocalSearchParams();
 	const { cart, addToCart, removeFromCart } = useCart(); // ✅ Cart context
 	const { isBooleanValue, setBooleanValue } = useBooleanValue();
+	const { t } = useTranslation();
 
 	const [user, setUser] = useState(null);
 	const [loading, setLoading] = useState(true);
@@ -97,17 +99,16 @@ export default function ShopPage() {
 		checkLogin();
 	}, []);
 
-const increaseQty = (product) => {
-	const currentQty = quantities[product._id] || 0;
-	// Do not allow increasing beyond stock
-	if (currentQty >= product.stock) return;
+	const increaseQty = (product) => {
+		const currentQty = quantities[product._id] || 0;
+		// Do not allow increasing beyond stock
+		if (currentQty >= product.stock) return;
 
-	const newQty = currentQty + 1;
-	setQuantities({ ...quantities, [product._id]: newQty });
-	addToCart(product, newQty);
-	setShowQty({ ...showQty, [product._id]: true });
-};
-
+		const newQty = currentQty + 1;
+		setQuantities({ ...quantities, [product._id]: newQty });
+		addToCart(product, newQty);
+		setShowQty({ ...showQty, [product._id]: true });
+	};
 
 	const decreaseQty = (product) => {
 		const currentQty = quantities[product._id] || 0;
@@ -163,50 +164,52 @@ const increaseQty = (product) => {
 							</View>
 						)}
 					</View>
- 
+
 					<Text style={styles.name} numberOfLines={2}>
 						{item.name}
 					</Text>
 					<Text style={styles.finalPrice}>€{finalPrice.toFixed(2)}</Text>
 
 					{/* Add to Cart / Quantity Selector */}
-<View style={styles.qtyRow}>
-	{item.stock > 0 ? ( // Only show if stock > 0
-		isQtyVisible ? (
-			<>
-				<TouchableOpacity
-					onPress={() => decreaseQty(item)}
-					style={styles.qtyBtn}
-				>
-					<Text style={styles.qtyText}>-</Text>
-				</TouchableOpacity>
+					<View style={styles.qtyRow}>
+						{item.stock > 0 ? ( // Only show if stock > 0
+							isQtyVisible ? (
+								<>
+									<TouchableOpacity
+										onPress={() => decreaseQty(item)}
+										style={styles.qtyBtn}
+									>
+										<Text style={styles.qtyText}>-</Text>
+									</TouchableOpacity>
 
-				<Text style={styles.qtyValue}>
-					{quantities[item._id] || 1}
-				</Text>
+									<Text style={styles.qtyValue}>
+										{quantities[item._id] || 1}
+									</Text>
 
-				<TouchableOpacity
-					onPress={() => increaseQty(item)}
-					style={[
-						styles.qtyBtn,
-						quantities[item._id] >= item.stock && { opacity: 0.5 } // visually disable
-					]}
-					disabled={quantities[item._id] >= item.stock} // actually disable button
-				>
-					<Text style={styles.qtyText}>+</Text>
-				</TouchableOpacity>
-			</>
-		) : (
-			<TouchableOpacity
-				onPress={() => increaseQty(item)}
-				style={[styles.qtyBtn, { paddingHorizontal: 12, paddingVertical: 6 }]}
-			>
-				<Feather name="shopping-cart" size={20} color="#fff" />
-			</TouchableOpacity>
-		)
-	) : null}
-</View>
-
+									<TouchableOpacity
+										onPress={() => increaseQty(item)}
+										style={[
+											styles.qtyBtn,
+											quantities[item._id] >= item.stock && { opacity: 0.5 }, // visually disable
+										]}
+										disabled={quantities[item._id] >= item.stock} // actually disable button
+									>
+										<Text style={styles.qtyText}>+</Text>
+									</TouchableOpacity>
+								</>
+							) : (
+								<TouchableOpacity
+									onPress={() => increaseQty(item)}
+									style={[
+										styles.qtyBtn,
+										{ paddingHorizontal: 12, paddingVertical: 6 },
+									]}
+								>
+									<Feather name="shopping-cart" size={20} color="#fff" />
+								</TouchableOpacity>
+							)
+						) : null}
+					</View>
 				</View>
 			</TouchableOpacity>
 		);
@@ -221,37 +224,38 @@ const increaseQty = (product) => {
 	}
 
 	return (
-		
 		<SafeAreaView edges={["top", "bottom"]} style={styles.safeArea}>
-		<ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 120 }}>
-			{/* Back Button */}
-			<View style={styles.header}>
-				<TouchableOpacity
-					onPress={() => router.back()}
-					style={styles.backButton}
-				>
-					<Feather name="chevron-left" size={24} color="#000" />
-				</TouchableOpacity>
-				<Text style={styles.headerTitle}>{category}</Text>
-			</View>
-
-			{/* Grouped Products */}
-			{Object.keys(groupedProducts).map((subName) => (
-				<View key={subName} style={{ marginBottom: 20 }}>
-					<Text style={styles.subcategoryTitle}>{subName}</Text>
-					<View style={styles.grid}>
-						{groupedProducts[subName].map((item) => renderProduct(item))}
-					</View>
+			<ScrollView
+				style={styles.container}
+				contentContainerStyle={{ paddingBottom: 120 }}
+			>
+				{/* Back Button */}
+				<View style={styles.header}>
+					<TouchableOpacity
+						onPress={() => router.back()}
+						style={styles.backButton}
+					>
+						<Feather name="chevron-left" size={24} color="#000" />
+					</TouchableOpacity>
+					<Text style={styles.headerTitle}>{category}</Text>
 				</View>
-			))}
-		</ScrollView>
+
+				{/* Grouped Products */}
+				{Object.keys(groupedProducts).map((subName) => (
+					<View key={subName} style={{ marginBottom: 20 }}>
+						<Text style={styles.subcategoryTitle}>{subName}</Text>
+						<View style={styles.grid}>
+							{groupedProducts[subName].map((item) => renderProduct(item))}
+						</View>
+					</View>
+				))}
+			</ScrollView>
 		</SafeAreaView>
-		 
 	);
 }
 
 const styles = StyleSheet.create({
-	container: { flex: 1, backgroundColor: "#FFFFFF",   },
+	container: { flex: 1, backgroundColor: "#FFFFFF" },
 	loader: {
 		flex: 1,
 		justifyContent: "center",
@@ -343,9 +347,14 @@ const styles = StyleSheet.create({
 		borderRadius: 4,
 	},
 	qtyText: { fontSize: 14, fontWeight: "700", color: "#fff" },
-	qtyValue: { marginHorizontal: 6, fontSize: 14, fontWeight: "500", color: "#000" },
+	qtyValue: {
+		marginHorizontal: 6,
+		fontSize: 14,
+		fontWeight: "500",
+		color: "#000",
+	},
 	safeArea: {
-  flex: 1,
-  backgroundColor: "#fff",
-}
+		flex: 1,
+		backgroundColor: "#fff",
+	},
 });

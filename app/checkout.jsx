@@ -114,11 +114,9 @@ const countryMap = {
 const CheckoutScreen = () => {
 	const { t } = useTranslation();
 
-	const { cart, removeFromCart, subtotal, calculatePriceDetails } =
-		useCart();
+	const { cart, removeFromCart, subtotal, calculatePriceDetails } = useCart();
 	const [deliveryFee, setDeliveryFee] = useState(0);
 	const [total, setTotal] = useState("0.00");
-
 
 	const [zones, setZones] = useState([]);
 
@@ -176,7 +174,7 @@ const CheckoutScreen = () => {
 
 				// ✅ If guest → go to start
 				if (guest !== "false") {
-					console.log("g = ", guest)
+					console.log("g = ", guest);
 					console.log("🟡 Guest detected → redirecting to /start");
 					router.replace("/start");
 					return;
@@ -243,9 +241,6 @@ const CheckoutScreen = () => {
 		checkLogin();
 	}, [router]);
 
-
-
-
 	// Delivery fee fetch
 	useEffect(() => {
 		const fetchPrice = async () => {
@@ -276,28 +271,26 @@ const CheckoutScreen = () => {
 		fetchPrice();
 	}, [state.inputs.zipCode]);
 
-const calculateTotal = () => {
-  const s = Number(subtotal);
-  const d = Number(deliveryFee);
+	const calculateTotal = () => {
+		const s = Number(subtotal);
+		const d = Number(deliveryFee);
 
-  // Calculate fee on (subtotal + delivery)
-  const processFee = (s + d) * 0.029 + 0.30;
+		// Calculate fee on (subtotal + delivery)
+		const processFee = (s + d) * 0.029 + 0.3;
 
-  // Round to 2 decimals
-  const fees = Math.round(processFee * 100) / 100;
+		// Round to 2 decimals
+		// const fees = Math.round(processFee * 100) / 100;
+		const fees = 0;
 
-  // Final total
-  const totalAmount = s + d + fees;
+		// Final total
+		const totalAmount = s + d + fees;
 
-  return totalAmount.toFixed(2);
-};
-
-
+		return totalAmount.toFixed(2);
+	};
 
 	useEffect(() => {
 		setTotal(calculateTotal());
 	}, [subtotal, deliveryFee]);
-
 
 	const handleInput = (name, value) => {
 		setState((prev) => ({
@@ -319,7 +312,6 @@ const calculateTotal = () => {
 	const inputBg = "#FFFFFF";
 	const inputText = "#000000";
 	const placeholderColor = "#666666";
-
 
 	if (!cart || cart.length === 0) {
 		return (
@@ -343,7 +335,10 @@ const calculateTotal = () => {
 				style={styles.container}
 				contentContainerStyle={{ paddingBottom: 150 }}
 			>
-				<TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+				<TouchableOpacity
+					onPress={() => router.back()}
+					style={styles.backButton}
+				>
 					<Feather name="chevron-left" size={24} color="#000000" />
 				</TouchableOpacity>
 
@@ -363,8 +358,6 @@ const calculateTotal = () => {
 					value={state.inputs.name}
 					onChangeText={(v) => handleInput("name", v)}
 				/>
-
-
 
 				<View
 					style={{
@@ -433,7 +426,6 @@ const calculateTotal = () => {
 				</View>
 
 				<View style={styles.row}>
-
 					<TextInput
 						style={[styles.input, { flex: 1 }]}
 						placeholder="Phone *"
@@ -467,9 +459,13 @@ const calculateTotal = () => {
 								<View style={{ flex: 1 }}>
 									<Text>{item.title}</Text>
 									<Text>Qty: {quantity}</Text>
-									<Text style={styles.price}>€{priceDetails.finalPrice.toFixed(2)}</Text>
+									<Text style={styles.price}>
+										€{priceDetails.finalPrice.toFixed(2)}
+									</Text>
 								</View>
-								<TouchableOpacity onPress={() => handleRemoveFromCart(item._id)}>
+								<TouchableOpacity
+									onPress={() => handleRemoveFromCart(item._id)}
+								>
 									<Ionicons name="trash" size={20} color="red" />
 								</TouchableOpacity>
 							</View>
@@ -487,7 +483,7 @@ const calculateTotal = () => {
 				</View>
 				<View style={styles.summaryRow}>
 					<Text>{t("Process fees")}</Text>
-					<Text> 2.9 % + €0.30</Text>
+					<Text> 0</Text>
 				</View>
 				<View style={styles.summaryRow}>
 					<Text style={{ fontWeight: "bold" }}>{t("total")}</Text>
@@ -545,7 +541,7 @@ const styles = StyleSheet.create({
 		marginTop: 60,
 	},
 	emptyText: { fontSize: 18, marginBottom: 20 },
-	safeArea: { flex: 1, backgroundColor: "#FFFFFF" }
+	safeArea: { flex: 1, backgroundColor: "#FFFFFF" },
 });
 
 export default CheckoutScreen;
